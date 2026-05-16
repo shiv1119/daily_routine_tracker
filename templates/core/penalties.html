@@ -1,0 +1,464 @@
+{% extends 'base.html' %}
+
+{% block title %}Penalties{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-sm-12">
+        <div class="home-tab">
+            <!-- Header -->
+            <div class="d-sm-flex align-items-center justify-content-between border-bottom">
+                <div>
+                    <div class="d-flex align-items-center">
+                        <i class="mdi mdi-alert-circle text-warning" style="font-size: 2rem;"></i>
+                        <div class="ms-3">
+                            <h2 class="mb-1">Penalty Management</h2>
+                            <p class="text-muted mb-0">Track and manage your penalties</p>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="btn-wrapper">
+                        <a href="{% url 'tracker' %}" class="btn btn-outline-primary">
+                            <i class="mdi mdi-calendar-check"></i> Go to Tracker
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mt-4">
+                <!-- Pending Penalties -->
+                <div class="col-lg-6 grid-margin stretch-card">
+                    <div class="card">
+                        <div class="card-header bg-transparent d-flex align-items-center">
+                            <i class="mdi mdi-clock-alert text-warning me-2" style="font-size: 1.5rem;"></i>
+                            <h4 class="card-title mb-0">Pending Penalties</h4>
+                            <div class="ms-auto">
+                                <span class="badge badge-warning">{{ pending_penalties.count }} Pending</span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            {% if pending_penalties %}
+                                <div class="list-group list-group-flush">
+                                    {% for penalty in pending_penalties %}
+                                        <div class="list-group-item px-0">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <div class="flex-grow-1">
+                                                    <div class="d-flex align-items-center mb-2">
+                                                        <span style="font-size: 1.5rem;">{{ penalty.category.icon }}</span>
+                                                        <h6 class="mb-0 ms-2">{{ penalty.category.name }}</h6>
+                                                        {% if penalty.doubled %}
+                                                            <span class="badge badge-danger ms-2">
+                                                                <i class="mdi mdi-alert"></i> DOUBLED
+                                                            </span>
+                                                        {% endif %}
+                                                        {% if penalty.is_overdue %}
+                                                            <span class="badge badge-dark ms-2">
+                                                                <i class="mdi mdi-clock-alert"></i> OVERDUE
+                                                            </span>
+                                                        {% endif %}
+                                                    </div>
+                                                    <p class="mb-2 text-muted">{{ penalty.penalty_text }}</p>
+                                                    <div class="d-flex flex-wrap gap-3">
+                                                        <small class="text-muted">
+                                                            <i class="mdi mdi-calendar"></i> Date: {{ penalty.date|date:"M d, Y" }}
+                                                        </small>
+                                                        <small class="text-muted">
+                                                            <i class="mdi mdi-hourglass"></i> Due by: {{ penalty.due_date|date:"M d, Y" }}
+                                                        </small>
+                                                        {% if penalty.is_overdue %}
+                                                            <small class="text-danger">
+                                                                <i class="mdi mdi-alert-circle"></i> LATE!
+                                                            </small>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                                <form method="POST" class="ms-3">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="penalty_id" value="{{ penalty.id }}">
+                                                    <button type="submit" class="btn btn-success btn-sm">
+                                                        <i class="mdi mdi-check"></i> Mark Completed
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="text-center py-5">
+                                    <i class="mdi mdi-trophy-outline fa-3x text-success mb-3 d-block"></i>
+                                    <h5 class="text-success">No Pending Penalties!</h5>
+                                    <p class="text-muted">Great job staying consistent! Keep it up! 🎉</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Penalty History -->
+                <div class="col-lg-6 grid-margin stretch-card">
+                    <div class="card">
+                        <div class="card-header bg-transparent d-flex align-items-center">
+                            <i class="mdi mdi-history text-info me-2" style="font-size: 1.5rem;"></i>
+                            <h4 class="card-title mb-0">Penalty History</h4>
+                            <div class="ms-auto">
+                                <span class="badge badge-info">{{ penalty_history.count }} Records</span>
+                            </div>
+                        </div>
+                        <div class="card-body p-0">
+                            {% if penalty_history %}
+                                <div class="table-responsive" style="max-height: 500px;">
+                                    <table class="table table-hover">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Category</th>
+                                                <th>Date</th>
+                                                <th>Penalty</th>
+                                                <th>Served</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for penalty in penalty_history %}
+                                            <tr>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <span style="font-size: 1.2rem;">{{ penalty.category.icon }}</span>
+                                                        <span class="ms-2">{{ penalty.category.name }}</span>
+                                                    </div>
+                                                </td>
+                                                <td>{{ penalty.date|date:"M d, Y" }}</td>
+                                                <td>
+                                                    <small>{{ penalty.penalty_text|truncatechars:40 }}</small>
+                                                </td>
+                                                <td>
+                                                    <span class="badge badge-success">
+                                                        <i class="mdi mdi-check-circle"></i> {{ penalty.served_date|date:"M d, Y" }}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <div class="text-center py-5">
+                                    <i class="mdi mdi-information-outline fa-3x text-muted mb-3 d-block"></i>
+                                    <p class="text-muted">No penalty history yet.</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Penalty Rules -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-transparent d-flex align-items-center">
+                            <i class="mdi mdi-gavel text-danger me-2" style="font-size: 1.5rem;"></i>
+                            <h4 class="card-title mb-0">Penalty Rules</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="row text-center">
+                                <div class="col-md-4 mb-3 mb-md-0">
+                                    <div class="rule-card p-3">
+                                        <div class="rule-icon mb-3">
+                                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#fb6340" stroke-width="1.5">
+                                                <circle cx="12" cy="12" r="10"></circle>
+                                                <polyline points="12 6 12 12 16 14"></polyline>
+                                            </svg>
+                                        </div>
+                                        <h5 class="mb-2">3-Day Grace Period</h5>
+                                        <p class="text-muted mb-0">You have 3 days to serve your penalty before it doubles</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3 mb-md-0">
+                                    <div class="rule-card p-3">
+                                        <div class="rule-icon mb-3">
+                                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#f5365c" stroke-width="1.5">
+                                                <circle cx="12" cy="12" r="10"></circle>
+                                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                                            </svg>
+                                        </div>
+                                        <h5 class="mb-2">Penalty Doubling</h5>
+                                        <p class="text-muted mb-0">Unserved penalties automatically double after 3 days</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="rule-card p-3">
+                                        <div class="rule-icon mb-3">
+                                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#2dce89" stroke-width="1.5">
+                                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                            </svg>
+                                        </div>
+                                        <h5 class="mb-2">Rank Impact</h5>
+                                        <p class="text-muted mb-0">Penalties affect your consistency score and rank</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tips Card -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card bg-gradient-info text-white">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center justify-content-between flex-wrap">
+                                <div class="d-flex align-items-center">
+                                    <i class="mdi mdi-lightbulb-outline me-3" style="font-size: 2rem;"></i>
+                                    <div>
+                                        <h5 class="text-white mb-1">Pro Tip</h5>
+                                        <p class="text-white-50 mb-0">Complete your penalties early to maintain your streak and rank!</p>
+                                    </div>
+                                </div>
+                                <a href="{% url 'tracker' %}" class="btn btn-light mt-2 mt-sm-0">
+                                    <i class="mdi mdi-calendar-check"></i> Start Tracking
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Penalty Page Styles */
+    .list-group-item {
+        border-left: none;
+        border-right: none;
+        border-color: rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+    }
+    
+    .list-group-item:hover {
+        background: rgba(94, 114, 228, 0.03);
+        transform: translateX(5px);
+    }
+    
+    /* Badge Styles */
+    .badge-warning {
+        background: linear-gradient(87deg, #fb6340 0%, #fbb140 100%);
+        color: white;
+        padding: 0.35rem 0.75rem;
+        border-radius: 0.5rem;
+        font-size: 0.75rem;
+    }
+    
+    .badge-danger {
+        background: linear-gradient(87deg, #f5365c 0%, #f56036 100%);
+        color: white;
+        padding: 0.35rem 0.75rem;
+        border-radius: 0.5rem;
+        font-size: 0.75rem;
+    }
+    
+    .badge-dark {
+        background: #172b4d;
+        color: white;
+        padding: 0.35rem 0.75rem;
+        border-radius: 0.5rem;
+        font-size: 0.75rem;
+    }
+    
+    .badge-info {
+        background: linear-gradient(87deg, #11cdef 0%, #1171ef 100%);
+        color: white;
+        padding: 0.35rem 0.75rem;
+        border-radius: 0.5rem;
+        font-size: 0.75rem;
+    }
+    
+    .badge-success {
+        background: linear-gradient(87deg, #2dce89 0%, #2dcecc 100%);
+        color: white;
+        padding: 0.35rem 0.75rem;
+        border-radius: 0.5rem;
+        font-size: 0.75rem;
+    }
+    
+    /* Table Styles */
+    .table-light {
+        background: #f8f9fe;
+    }
+    
+    [data-bs-theme="dark"] .table-light {
+        background: #1a1a2e;
+    }
+    
+    .table-hover tbody tr {
+        transition: all 0.3s ease;
+    }
+    
+    .table-hover tbody tr:hover {
+        background: rgba(94, 114, 228, 0.05);
+    }
+    
+    /* Rule Card Styles */
+    .rule-card {
+        border-radius: 0.75rem;
+        transition: all 0.3s ease;
+        background: rgba(94, 114, 228, 0.03);
+    }
+    
+    .rule-card:hover {
+        transform: translateY(-5px);
+        background: rgba(94, 114, 228, 0.08);
+    }
+    
+    .rule-icon svg {
+        transition: transform 0.3s ease;
+    }
+    
+    .rule-card:hover .rule-icon svg {
+        transform: scale(1.1);
+    }
+    
+    /* Button Styles */
+    .btn-success {
+        background: linear-gradient(87deg, #2dce89 0%, #2dcecc 100%);
+        border: none;
+        color: white !important;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-success:hover {
+        background: linear-gradient(87deg, #2dcecc 0%, #2dce89 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11);
+        color: white !important;
+    }
+    
+    .btn-outline-primary {
+        color: #5e72e4 !important;
+        border-color: #5e72e4;
+    }
+    
+    .btn-outline-primary:hover {
+        background: #5e72e4;
+        color: white !important;
+    }
+    
+    .btn-light {
+        background: white;
+        border: none;
+        color: #5e72e4 !important;
+        font-weight: 600;
+    }
+    
+    .btn-light:hover {
+        background: #f8f9fe;
+        transform: translateY(-2px);
+        color: #5e72e4 !important;
+    }
+    
+    /* Card Styles */
+    .card {
+        border: none;
+        border-radius: 1rem;
+        box-shadow: 0 0 2rem 0 rgba(136, 152, 170, 0.15);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175);
+    }
+    
+    /* Gradient Background */
+    .bg-gradient-info {
+        background: linear-gradient(87deg, #11cdef 0%, #1171ef 100%);
+    }
+    
+    /* Dark Mode Support */
+    [data-bs-theme="dark"] .list-group-item {
+        background: transparent;
+        border-color: rgba(255, 255, 255, 0.05);
+    }
+    
+    [data-bs-theme="dark"] .list-group-item:hover {
+        background: rgba(255, 255, 255, 0.05);
+    }
+    
+    [data-bs-theme="dark"] .rule-card {
+        background: rgba(255, 255, 255, 0.03);
+    }
+    
+    [data-bs-theme="dark"] .rule-card:hover {
+        background: rgba(255, 255, 255, 0.08);
+    }
+    
+    [data-bs-theme="dark"] .btn-light {
+        background: #2d3748;
+        color: #e2e8f0 !important;
+    }
+    
+    [data-bs-theme="dark"] .btn-light:hover {
+        background: #374151;
+    }
+    
+    /* Animations */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .card {
+        animation: fadeIn 0.5s ease-out;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .rule-card {
+            margin-bottom: 1rem;
+        }
+        
+        .btn-sm {
+            padding: 0.3rem 0.6rem;
+            font-size: 0.7rem;
+        }
+        
+        .list-group-item .d-flex {
+            flex-direction: column;
+        }
+        
+        .list-group-item form {
+            margin-top: 1rem;
+            align-self: flex-end;
+        }
+    }
+    
+    /* Scrollbar */
+    .table-responsive::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+    
+    .table-responsive::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+    
+    .table-responsive::-webkit-scrollbar-thumb {
+        background: #5e72e4;
+        border-radius: 10px;
+    }
+    
+    [data-bs-theme="dark"] .table-responsive::-webkit-scrollbar-track {
+        background: #2d3748;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,455 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-sm-12">
+        <div class="home-tab">
+            <!-- Header -->
+            <div class="d-sm-flex align-items-center justify-content-between border-bottom">
+                <div>
+                    <div class="d-flex align-items-center">
+                        <i class="mdi mdi-account-circle text-primary" style="font-size: 2rem;"></i>
+                        <div class="ms-3">
+                            <h2 class="mb-1">My Profile</h2>
+                            <p class="text-muted mb-0">Manage your account information and preferences</p>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="btn-wrapper">
+                        <a href="{% url 'dashboard' %}" class="btn btn-outline-primary">
+                            <i class="mdi mdi-view-dashboard"></i> Go to Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mt-4">
+                <!-- Profile Card -->
+                <div class="col-lg-4 grid-margin stretch-card">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <!-- Profile Image -->
+                            <div class="profile-image-wrapper mb-3">
+                                {% if user.profile.profile_image %}
+                                    <img src="{{ user.profile.profile_image.url }}" alt="Profile" class="profile-avatar rounded-circle">
+                                {% else %}
+                                    <div class="default-avatar rounded-circle d-inline-flex align-items-center justify-content-center">
+                                        <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                            <circle cx="12" cy="7" r="4"></circle>
+                                        </svg>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <h3 class="mb-1">{{ user.username }}</h3>
+                            <p class="text-muted mb-3">{{ user.email }}</p>
+                            
+                            <!-- Rank Badge -->
+                            <div class="rank-badge-wrapper mb-3">
+                                <span class="badge badge-primary" style="background: {{ user_rank_color }}; padding: 8px 16px; font-size: 1rem;">
+                                    <i class="mdi {{ user_rank_icon }} me-1"></i> {{ user_rank }}
+                                </span>
+                            </div>
+                            
+                            <!-- Consistency Score -->
+                            <div class="consistency-section">
+                                <h5 class="mb-2">Consistency Score</h5>
+                                <div class="progress progress-md mb-2">
+                                    <div class="progress-bar bg-primary" role="progressbar" style="width: {{ consistency_score }}%"></div>
+                                </div>
+                                <span class="fw-bold">{{ consistency_score|floatformat:1 }}%</span>
+                                <span class="text-muted">- Last 30 days</span>
+                            </div>
+                            
+                            <!-- Target Achievement -->
+                            {% if user.profile.target_achieved %}
+                                <div class="alert alert-success mt-3 mb-0">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2">
+                                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                    </svg>
+                                    Target Achieved! 🎉
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Edit Profile Form -->
+                <div class="col-lg-8 grid-margin stretch-card">
+                    <div class="card">
+                        <div class="card-header bg-transparent d-flex align-items-center">
+                            <i class="mdi mdi-account-edit text-primary me-2" style="font-size: 1.5rem;"></i>
+                            <h4 class="card-title mb-0">Edit Profile Information</h4>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                
+                                <div class="form-section mb-4">
+                                    <h5 class="section-title mb-3 pb-2 border-bottom">
+                                        <i class="mdi mdi-shield-account me-2 text-primary"></i> Account Info
+                                    </h5>
+                                    {{ u_form|crispy }}
+                                </div>
+                                
+                                <div class="form-section mb-4">
+                                    <h5 class="section-title mb-3 pb-2 border-bottom">
+                                        <i class="mdi mdi-card-account-details me-2 text-primary"></i> Profile Info
+                                    </h5>
+                                    {{ p_form|crispy }}
+                                </div>
+                                
+                                <div class="form-group mt-4">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="mdi mdi-content-save me-2"></i> Update Profile
+                                    </button>
+                                    <button type="reset" class="btn btn-secondary ms-2">
+                                        <i class="mdi mdi-cancel me-2"></i> Reset
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Statistics Cards -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-transparent d-flex align-items-center">
+                            <i class="mdi mdi-chart-line text-primary me-2" style="font-size: 1.5rem;"></i>
+                            <h4 class="card-title mb-0">Your Statistics</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3 col-sm-6 mb-3">
+                                    <div class="stat-card-mini text-center p-3 border rounded">
+                                        <div class="stat-icon mb-2">
+                                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#5e72e4" stroke-width="1.5">
+                                                <path d="M20 7h-4.18A3 3 0 0 0 13 5.18V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"></path>
+                                                <line x1="16" y1="2" x2="22" y2="8"></line>
+                                                <line x1="10" y1="14" x2="14" y2="10"></line>
+                                                <line x1="14" y1="14" x2="10" y2="10"></line>
+                                            </svg>
+                                        </div>
+                                        <h6 class="text-muted mb-1">Total Categories</h6>
+                                        <h2 class="text-primary mb-0">{{ user.categories.count }}</h2>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-3 col-sm-6 mb-3">
+                                    <div class="stat-card-mini text-center p-3 border rounded">
+                                        <div class="stat-icon mb-2">
+                                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#2dce89" stroke-width="1.5">
+                                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                                            </svg>
+                                        </div>
+                                        <h6 class="text-muted mb-1">Total Logs</h6>
+                                        <h2 class="text-success mb-0">{{ user.daily_logs.count }}</h2>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-3 col-sm-6 mb-3">
+                                    <div class="stat-card-mini text-center p-3 border rounded">
+                                        <div class="stat-icon mb-2">
+                                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#11cdef" stroke-width="1.5">
+                                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                            </svg>
+                                        </div>
+                                        <h6 class="text-muted mb-1">Completed Tasks</h6>
+                                        <h2 class="text-info mb-0">{{ user.daily_logs.filter.completed.count }}</h2>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-3 col-sm-6 mb-3">
+                                    <div class="stat-card-mini text-center p-3 border rounded">
+                                        <div class="stat-icon mb-2">
+                                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fb6340" stroke-width="1.5">
+                                                <circle cx="12" cy="12" r="10"></circle>
+                                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                                            </svg>
+                                        </div>
+                                        <h6 class="text-muted mb-1">Penalties Served</h6>
+                                        <h2 class="text-warning mb-0">{{ user.penalties.filter.served.count }}</h2>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent Activity Section -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-transparent d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center">
+                                <i class="mdi mdi-history text-primary me-2" style="font-size: 1.5rem;"></i>
+                                <h4 class="card-title mb-0">Recent Activity</h4>
+                            </div>
+                            <a href="{% url 'tracker' %}" class="btn btn-sm btn-outline-primary">
+                                View All Activity <i class="mdi mdi-arrow-right"></i>
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Category</th>
+                                            <th>Status</th>
+                                            <th>Penalty</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for log in user.daily_logs.all|slice:":5" %}
+                                        <tr>
+                                            <td>{{ log.date|date:"M d, Y" }}</td>
+                                            <td>
+                                                <span style="font-size: 1.2rem;">{{ log.category.icon }}</span>
+                                                {{ log.category.name }}
+                                            </td>
+                                            <td>
+                                                {% if log.completed %}
+                                                    <span class="badge badge-success">
+                                                        <i class="mdi mdi-check-circle"></i> Completed
+                                                    </span>
+                                                {% else %}
+                                                    <span class="badge badge-warning">
+                                                        <i class="mdi mdi-alert-circle"></i> Missed
+                                                    </span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if not log.completed %}
+                                                    <small class="text-warning">{{ log.category.penalty_text|truncatechars:30 }}</small>
+                                                {% else %}
+                                                    <span class="text-muted">-</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr>
+                                            <td colspan="4" class="text-center py-4">
+                                                <i class="mdi mdi-information-outline fa-2x text-muted mb-2 d-block"></i>
+                                                No activity yet. Start tracking your habits!
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Profile Page Styles */
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+        border: 3px solid #5e72e4;
+        box-shadow: 0 0 20px rgba(94, 114, 228, 0.3);
+    }
+    
+    .default-avatar {
+        width: 120px;
+        height: 120px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    .default-avatar svg {
+        width: 60px;
+        height: 60px;
+        stroke: white;
+    }
+    
+    .section-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #3c4858;
+    }
+    
+    .stat-card-mini {
+        transition: all 0.3s ease;
+        background: white;
+        border-radius: 0.75rem;
+    }
+    
+    .stat-card-mini:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+    
+    .stat-card-mini h2 {
+        font-size: 2rem;
+        font-weight: 700;
+    }
+    
+    /* Form Styles */
+    .form-control, .form-select {
+        border-radius: 0.5rem;
+        border: 1px solid #dee2e6;
+        padding: 0.625rem 0.875rem;
+        font-size: 0.875rem;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #5e72e4;
+        box-shadow: 0 0 0 2px rgba(94, 114, 228, 0.2);
+    }
+    
+    /* Button Styles */
+    .btn-primary {
+        background: linear-gradient(87deg, #5e72e4 0%, #825ee4 100%);
+        border: none;
+        color: white !important;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        background: linear-gradient(87deg, #825ee4 0%, #5e72e4 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11);
+    }
+    
+    .btn-secondary {
+        background: #e9ecef;
+        border: none;
+        color: #525f7f !important;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-secondary:hover {
+        background: #dee2e6;
+        transform: translateY(-1px);
+    }
+    
+    .btn-outline-primary {
+        color: #5e72e4 !important;
+        border-color: #5e72e4;
+    }
+    
+    .btn-outline-primary:hover {
+        background: #5e72e4;
+        color: white !important;
+    }
+    
+    /* Badge Styles */
+    .badge-success {
+        background: linear-gradient(87deg, #2dce89 0%, #2dcecc 100%);
+        color: white;
+        padding: 0.35rem 0.75rem;
+        border-radius: 0.5rem;
+        font-size: 0.75rem;
+    }
+    
+    .badge-warning {
+        background: linear-gradient(87deg, #fb6340 0%, #fbb140 100%);
+        color: white;
+        padding: 0.35rem 0.75rem;
+        border-radius: 0.5rem;
+        font-size: 0.75rem;
+    }
+    
+    /* Progress Bar */
+    .progress-md {
+        height: 8px;
+        border-radius: 0.5rem;
+        background: rgba(94, 114, 228, 0.1);
+    }
+    
+    .progress-bar {
+        background: linear-gradient(87deg, #5e72e4 0%, #825ee4 100%);
+        border-radius: 0.5rem;
+    }
+    
+    /* Alert Styles */
+    .alert-success {
+        background: linear-gradient(87deg, #2dce89 0%, #2dcecc 100%);
+        color: white;
+        border: none;
+        border-radius: 0.75rem;
+    }
+    
+    /* Dark Mode Support */
+    [data-bs-theme="dark"] .stat-card-mini {
+        background: #1a1a2e;
+        border-color: #2d3748 !important;
+    }
+    
+    [data-bs-theme="dark"] .border {
+        border-color: #2d3748 !important;
+    }
+    
+    [data-bs-theme="dark"] .text-muted {
+        color: #a0aec0 !important;
+    }
+    
+    [data-bs-theme="dark"] .section-title {
+        color: #e2e8f0;
+    }
+    
+    [data-bs-theme="dark"] .btn-secondary {
+        background: #2d3748;
+        color: #e2e8f0 !important;
+    }
+    
+    [data-bs-theme="dark"] .btn-secondary:hover {
+        background: #374151;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .profile-avatar, .default-avatar {
+            width: 100px;
+            height: 100px;
+        }
+        
+        .stat-card-mini h2 {
+            font-size: 1.5rem;
+        }
+        
+        .stat-card-mini svg {
+            width: 30px;
+            height: 30px;
+        }
+    }
+    
+    /* Animations */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .card {
+        animation: fadeIn 0.5s ease-out;
+    }
+</style>
+{% endblock %}

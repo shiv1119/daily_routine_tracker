@@ -1,0 +1,1231 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<style>
+/* Stat Card Mini */
+.stat-card-mini {
+    background: rgba(94, 114, 228, 0.05);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.stat-card-mini:hover {
+    background: rgba(94, 114, 228, 0.1);
+    transform: translateY(-2px);
+}
+
+.stat-card-mini h3 {
+    font-size: 1.75rem;
+    font-weight: 700;
+}
+
+/* Dark mode support */
+[data-bs-theme="dark"] .stat-card-mini {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+[data-bs-theme="dark"] .stat-card-mini:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+/* Todo List Table Styles */
+.todo-table {
+    margin-bottom: 0;
+}
+
+.todo-table thead th {
+    background: transparent;
+    color: #8898aa;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    padding: 12px 8px;
+}
+
+.todo-table tbody tr {
+    transition: all 0.3s ease;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+}
+
+.todo-table tbody tr:hover {
+    background: rgba(94, 114, 228, 0.03);
+    transform: translateX(5px);
+}
+
+.todo-table tbody td {
+    padding: 16px 8px;
+    vertical-align: middle;
+}
+
+.task-icon {
+    font-size: 2rem;
+    min-width: 50px;
+    text-align: center;
+    background: rgba(94, 114, 228, 0.1);
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+}
+
+/* Badge Styles */
+.badge-light-info {
+    background: rgba(17, 205, 239, 0.1);
+    color: #11cdef;
+    padding: 5px 10px;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    width: fit-content;
+}
+
+.badge-light-warning {
+    background: rgba(251, 99, 64, 0.1);
+    color: #fb6340;
+    padding: 5px 10px;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    width: fit-content;
+}
+
+/* Button Styles - Fixed colors */
+.btn-success {
+    background: linear-gradient(87deg, #2dce89 0%, #2dcecc 100%);
+    border: none;
+    color: #ffffff !important;
+    transition: all 0.3s ease;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.75rem;
+}
+
+.btn-success:hover {
+    background: linear-gradient(87deg, #2dcecc 0%, #2dce89 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11);
+    color: #ffffff !important;
+}
+
+.btn-success:active,
+.btn-success:focus {
+    color: #ffffff !important;
+}
+
+.btn-primary {
+    background: linear-gradient(87deg, #5e72e4 0%, #825ee4 100%);
+    border: none;
+    color: #ffffff !important;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(87deg, #825ee4 0%, #5e72e4 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11);
+    color: #ffffff !important;
+}
+
+.btn-primary:active,
+.btn-primary:focus {
+    color: #ffffff !important;
+}
+
+/* Ensure all buttons have proper text color */
+button,
+button:active,
+button:focus,
+button:hover {
+    color: #ffffff !important;
+}
+
+.btn-sm {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.75rem;
+}
+
+/* Empty State */
+.empty-state {
+    padding: 30px 20px;
+}
+
+.empty-state i {
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* Progress Bar */
+.progress-md {
+    height: 8px;
+    border-radius: 10px;
+    background: rgba(94, 114, 228, 0.1);
+}
+
+.progress-bar {
+    border-radius: 10px;
+    transition: width 0.6s ease;
+}
+
+/* Dark mode support */
+[data-bs-theme="dark"] .todo-table thead th {
+    color: #a0aec0;
+    border-bottom-color: rgba(255, 255, 255, 0.05);
+}
+
+[data-bs-theme="dark"] .todo-table tbody tr {
+    border-bottom-color: rgba(255, 255, 255, 0.03);
+}
+
+[data-bs-theme="dark"] .todo-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+[data-bs-theme="dark"] .task-icon {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .todo-table thead {
+        display: none;
+    }
+    
+    .todo-table tbody tr {
+        display: block;
+        margin-bottom: 15px;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        border-radius: 12px;
+        padding: 15px;
+    }
+    
+    .todo-table tbody td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+    }
+    
+    .btn-success {
+        padding: 6px 12px;
+        font-size: 0.7rem;
+    }
+}
+</style>
+<div class="row">
+    <div class="col-sm-12">
+        <div class="home-tab">
+            <div class="d-sm-flex align-items-center justify-content-between border-bottom">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active ps-0" id="overview-tab" data-bs-toggle="tab" href="#overview" role="tab" aria-controls="overview" aria-selected="true">Overview</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="analytics-tab" data-bs-toggle="tab" href="#analytics" role="tab" aria-selected="false">Analytics</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="penalties-tab" data-bs-toggle="tab" href="#penalties" role="tab" aria-selected="false">Penalties</a>
+                    </li>
+                </ul>
+                <div>
+                    <div class="btn-wrapper">
+                        <a href="{% url 'tracker' %}" class="btn btn-otline-dark align-items-center">
+                            <i class="icon-share"></i> Track Today
+                        </a>
+                        <a href="#" onclick="window.print();" class="btn btn-otline-dark">
+                            <i class="icon-printer"></i> Print
+                        </a>
+                        <a href="{% url 'tracker' %}" class="btn btn-primary text-white me-0">
+                            <i class="icon-download"></i> Export
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-content tab-content-basic">
+                <!-- Overview Tab -->
+                <div class="tab-pane fade show active" id="overview" role="tabpanel" aria-labelledby="overview-tab">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="statistics-details d-flex align-items-center justify-content-between">
+                                <div>
+                                    <p class="statistics-title">Current Streak</p>
+                                    <h3 class="rate-percentage">{{ streak_data.current }}</h3>
+                                    <p class="text-success d-flex">
+                                        <i class="mdi mdi-menu-up"></i>
+                                        <span>+{{ streak_data.current|default:0 }} days</span>
+                                    </p>
+                                </div>
+                                <div>
+                                    <p class="statistics-title">Longest Streak</p>
+                                    <h3 class="rate-percentage">{{ streak_data.longest }}</h3>
+                                    <p class="text-success d-flex">
+                                        <i class="mdi mdi-menu-up"></i>
+                                        <span>🏆 Record</span>
+                                    </p>
+                                </div>
+                                <div>
+                                    <p class="statistics-title">Consistency</p>
+                                    <h3 class="rate-percentage">{{ consistency_score|floatformat:1 }}%</h3>
+                                    <p class="text-success d-flex">
+                                        <i class="mdi mdi-menu-up"></i>
+                                        <span>Last 30 days</span>
+                                    </p>
+                                </div>
+                                <div class="d-none d-md-block">
+                                    <p class="statistics-title">Active Categories</p>
+                                    <h3 class="rate-percentage">{{ categories.count }}</h3>
+                                    <p class="text-success d-flex">
+                                        <i class="mdi mdi-menu-up"></i>
+                                        <span>Tracking</span>
+                                    </p>
+                                </div>
+                                <div class="d-none d-md-block">
+                                    <p class="statistics-title">Completed Today</p>
+                                    <h3 class="rate-percentage">{{ today_completed }}</h3>
+                                    <p class="text-success d-flex">
+                                        <i class="mdi mdi-menu-up"></i>
+                                        <span>of {{ categories.count }}</span>
+                                    </p>
+                                </div>
+                                <div class="d-none d-md-block">
+                                    <p class="statistics-title">Current Rank</p>
+                                    <h3 class="rate-percentage">{{ user_rank }}</h3>
+                                    <p class="text-success d-flex">
+                                        <i class="mdi mdi-star"></i>
+                                        <span>{{ user_rank_icon|safe }}</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-lg-8 d-flex flex-column">
+<div class="row flex-grow">
+    <div class="col-12 grid-margin stretch-card">
+        <div class="card card-rounded">
+            <div class="card-body">
+                <div class="d-sm-flex justify-content-between align-items-start">
+                    <div>
+                        <h4 class="card-title card-title-dash">Daily Progress Overview</h4>
+                        <p class="card-subtitle card-subtitle-dash">
+                            Tasks completed per day - {{ range_name }}
+                        </p>
+                    </div>
+                    <div>
+                        <form method="GET" action="{% url 'dashboard' %}" class="d-flex gap-2">
+                            <select name="range" class="form-select form-select-sm" style="width: auto;" onchange="this.form.submit()">
+                                <option value="current_month" {% if time_range == 'current_month' %}selected{% endif %}>Current Month</option>
+                                <option value="last_3_months" {% if time_range == 'last_3_months' %}selected{% endif %}>Last 3 Months</option>
+                                <option value="last_6_months" {% if time_range == 'last_6_months' %}selected{% endif %}>Last 6 Months</option>
+                                <option value="last_12_months" {% if time_range == 'last_12_months' %}selected{% endif %}>Last 12 Months</option>
+                            </select>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Summary Stats -->
+                <div class="row mt-3 mb-4">
+                    <div class="col-md-3">
+                        <div class="stat-card-mini text-center p-2">
+                            <h5 class="text-muted mb-1">Total Days</h5>
+                            <h3 class="text-primary mb-0">{{ chart_labels|length }}</h3>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card-mini text-center p-2">
+                            <h5 class="text-muted mb-1">Tasks Completed</h5>
+                            <h3 class="text-success mb-0">{{ total_completed_tasks }}</h3>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card-mini text-center p-2">
+                            <h5 class="text-muted mb-1">Total Possible</h5>
+                            <h3 class="text-info mb-0">{{ total_possible_tasks }}</h3>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card-mini text-center p-2">
+                            <h5 class="text-muted mb-1">Completion Rate</h5>
+                            <h3 class="text-warning mb-0">{{ overall_completion_rate|floatformat:1 }}%</h3>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chartjs-bar-wrapper mt-3">
+                    <canvas id="dailyProgressChart"></canvas>
+                </div>
+                <div class="mt-3 text-center">
+                    <small class="text-muted">
+                        <i class="mdi mdi-information-outline"></i> 
+                        Each day you have {{ total_categories }} categories to complete. The chart shows how many you completed each day.
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Todo List Section - Today's Pending Tasks -->
+<div class="row flex-grow">
+    <div class="col-12 grid-margin stretch-card">
+        <div class="card card-rounded">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <div>
+                                <h4 class="card-title card-title-dash mb-1">
+                                    <i class="mdi mdi-format-list-checkbox text-primary me-2"></i>
+                                    Today's Pending Tasks
+                                </h4>
+                                <p class="text-muted small mb-0">
+                                    <i class="mdi mdi-information-outline"></i> 
+                                    Complete your tasks to maintain your streak
+                                </p>
+                            </div>
+                            <a href="{% url 'tracker' %}" class="btn btn-primary btn-sm">
+                                <i class="mdi mdi-calendar-check me-1"></i> Full Tracker
+                            </a>
+                        </div>
+                        
+                        <div class="list-wrapper">
+                            {% if pending_tasks %}
+                                <div class="table-responsive">
+                                    <table class="table todo-table">
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 50%">Task</th>
+                                                <th style="width: 30%">Target & Penalty</th>
+                                                <th style="width: 20%">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for task in pending_tasks %}
+                                                <tr class="todo-row">
+                                                    <td>
+                                                        <div class="d-flex align-items-center">
+                                                            <span class="task-icon me-3">{{ task.category_icon }}</span>
+                                                            <div>
+                                                                <h6 class="mb-0 fw-semibold">{{ task.category_name }}</h6>
+                                                                <small class="text-muted">Pending completion</small>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="d-flex flex-column gap-1">
+                                                            <span class="badge badge-light-info">
+                                                                <i class="mdi mdi-target me-1"></i>
+                                                                Target: {{ task.target_value }} {{ task.unit }}
+                                                            </span>
+                                                            <span class="badge badge-light-warning">
+                                                                <i class="mdi mdi-gavel me-1"></i>
+                                                                {{ task.penalty_text|truncatechars:35 }}
+                                                            </span>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <form method="POST" action="{% url 'dashboard' %}">
+                                                            {% csrf_token %}
+                                                            <input type="hidden" name="complete_log_id" value="{{ task.id }}">
+                                                            <button type="submit" class="btn btn-success btn-sm w-100 mark-done-btn">
+                                                                <i class="mdi mdi-check-circle me-1"></i> Mark Done
+                                                            </button>
+                                                        </form>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <div class="text-center py-5">
+                                    <div class="empty-state">
+                                        <i class="mdi mdi-check-circle-outline text-success" style="font-size: 4rem;"></i>
+                                        <h5 class="mt-3 mb-2">All caught up! 🎉</h5>
+                                        <p class="text-muted mb-0">No pending tasks for today!</p>
+                                        <small class="text-muted">Great job staying on track!</small>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Progress summary -->
+                        {% if total_tasks_count > 0 %}
+                            <div class="mt-4 pt-3 border-top">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div>
+                                            <span class="text-success fw-bold">{{ completed_tasks_count }}</span>
+                                            <small class="text-muted">completed</small>
+                                        </div>
+                                        <div>
+                                            <span class="text-warning fw-bold">{{ pending_tasks|length }}</span>
+                                            <small class="text-muted">pending</small>
+                                        </div>
+                                        <div>
+                                            <span class="text-primary fw-bold">{{ total_tasks_count }}</span>
+                                            <small class="text-muted">total</small>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <span class="fw-bold">{{ completion_percentage|floatformat:0 }}%</span>
+                                        <small class="text-muted">complete</small>
+                                    </div>
+                                </div>
+                                <div class="progress progress-md">
+                                    <div class="progress-bar bg-success" role="progressbar" 
+                                         style="width: {{ completion_percentage }}%">
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+                            
+                            <div class="row flex-grow">
+                                <div class="col-12 grid-margin stretch-card">
+                                    <div class="card card-rounded">
+                                        <div class="card-body">
+                                            <div class="d-sm-flex justify-content-between align-items-start">
+                                                <div>
+                                                    <h4 class="card-title card-title-dash">Category Performance</h4>
+                                                    <p class="card-subtitle card-subtitle-dash">Completion rate by category this month</p>
+                                                </div>
+                                                <div>
+                                                    <button class="btn btn-primary btn-lg text-white mb-0 me-0" type="button" onclick="window.location.href='{% url 'categories' %}'">
+                                                        <i class="mdi mdi-plus"></i>Add Category
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="table-responsive mt-4">
+                                                <table class="table select-table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Category</th>
+                                                            <th>Target</th>
+                                                            <th>Completion</th>
+                                                            <th>Status</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for category in category_performance %}
+                                                        <tr>
+                                                            <td>
+                                                                <div class="d-flex">
+                                                                    <div class="me-3">
+                                                                        <span style="font-size: 1.5rem;">{{ category.icon }}</span>
+                                                                    </div>
+                                                                    <div>
+                                                                        <h6>{{ category.name }}</h6>
+                                                                        <p>{{ category.target_value }} {{ category.unit }}</p>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <h6>{{ category.completed }}/{{ category.total }}</h6>
+                                                                <p>days completed</p>
+                                                            </td>
+                                                            <td>
+                                                                <div>
+                                                                    <div class="d-flex justify-content-between align-items-center mb-1 max-width-progress-wrap">
+                                                                        <p class="text-success">{{ category.completion_rate|floatformat:0 }}%</p>
+                                                                        <p>{{ category.completed }}/{{ category.total }}</p>
+                                                                    </div>
+                                                                    <div class="progress progress-md">
+                                                                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ category.completion_rate }}%"></div>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                {% if category.completion_rate >= 80 %}
+                                                                    <div class="badge badge-opacity-success">Excellent</div>
+                                                                {% elif category.completion_rate >= 60 %}
+                                                                    <div class="badge badge-opacity-warning">Good</div>
+                                                                {% else %}
+                                                                    <div class="badge badge-opacity-danger">Needs Work</div>
+                                                                {% endif %}
+                                                            </td>
+                                                        </tr>
+                                                        {% empty %}
+                                                        <tr>
+                                                            <td colspan="4" class="text-center py-4">
+                                                                No categories yet. Create your first category!
+                                                            </td>
+                                                        </tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-4 d-flex flex-column">
+                            <div class="row flex-grow">
+                                <div class="col-12 grid-margin stretch-card">
+                                    <div class="card card-rounded">
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                                        <h4 class="card-title card-title-dash">Target vs Actual</h4>
+                                                        <div class="dropdown">
+                                                            <button class="btn btn-light dropdown-toggle toggle-dark btn-sm mb-0 me-0" type="button" id="radarDropdown" data-bs-toggle="dropdown">
+                                                                This Month
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <canvas id="radarChart"></canvas>
+                                                    </div>
+                                                    <div id="radarChart-legend" class="mt-3 text-center"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row flex-grow">
+                                <div class="col-12 grid-margin stretch-card">
+                                    <div class="card card-rounded">
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                                        <h4 class="card-title card-title-dash">Category Distribution</h4>
+                                                    </div>
+                                                    <div>
+                                                        <canvas id="doughnutChart"></canvas>
+                                                    </div>
+                                                    <div id="doughnutChart-legend" class="mt-3 text-center"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row flex-grow">
+                                <div class="col-12 grid-margin stretch-card">
+                                    <div class="card card-rounded">
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                                        <div>
+                                                            <h4 class="card-title card-title-dash">Rank Progress</h4>
+                                                        </div>
+                                                        <div>
+                                                            <div class="badge badge-primary" style="background: {{ user_rank_color }};">
+                                                                <i class="mdi mdi-star"></i> {{ user_rank }}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="mt-3">
+                                                        <div class="d-flex justify-content-between mb-2">
+                                                            <span>Progress to next rank</span>
+                                                            <span>{{ consistency_score|floatformat:1 }}%</span>
+                                                        </div>
+                                                        <div class="progress progress-md">
+                                                            <div class="progress-bar bg-primary" role="progressbar" style="width: {{ consistency_score }}%"></div>
+                                                        </div>
+                                                        <div class="text-center mt-3">
+                                                            <small class="text-muted">
+                                                                {{ rank_progress_message }}
+                                                            </small>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Analytics Tab -->
+                <div class="tab-pane fade" id="analytics" role="tabpanel" aria-labelledby="analytics-tab">
+                    <div class="row">
+                        <div class="col-lg-6 d-flex flex-column">
+                            <div class="row flex-grow">
+                                <div class="col-12 grid-margin stretch-card">
+                                    <div class="card card-rounded">
+                                        <div class="card-body">
+                                            <h4 class="card-title card-title-dash">Penalty Frequency by Category</h4>
+                                            <canvas id="penaltyChart" style="height: 400px;"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 d-flex flex-column">
+                            <div class="row flex-grow">
+                                <div class="col-12 grid-margin stretch-card">
+                                    <div class="card card-rounded">
+                                        <div class="card-body">
+                                            <h4 class="card-title card-title-dash">Daily Heatmap</h4>
+                                            <p class="card-subtitle card-subtitle-dash">Your activity throughout the month</p>
+                                            <div id="heatmap" style="height: 400px;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Penalties Tab -->
+                <div class="tab-pane fade" id="penalties" role="tabpanel" aria-labelledby="penalties-tab">
+                    <div class="row">
+                        <div class="col-12 grid-margin">
+                            <div class="card card-rounded">
+                                <div class="card-body">
+                                    <h4 class="card-title card-title-dash">Recent Penalties</h4>
+                                    <div class="table-responsive">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Category</th>
+                                                    <th>Date</th>
+                                                    <th>Penalty</th>
+                                                    <th>Status</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% if recent_penalties %}
+                                                    {% for penalty in recent_penalties %}
+                                                    <tr>
+                                                        <td>
+                                                            <div class="d-flex align-items-center">
+                                                                <span style="font-size: 1.2rem;">{{ penalty.category.icon }}</span>
+                                                                <span class="ms-2">{{ penalty.category.name }}</span>
+                                                            </div>
+                                                        </td>
+                                                        <td>{{ penalty.date|date:"M d, Y" }}</td>
+                                                        <td>{{ penalty.penalty_text|truncatechars:50 }}</td>
+                                                        <td>
+                                                            {% if penalty.served %}
+                                                                <div class="badge badge-opacity-success">Served</div>
+                                                            {% else %}
+                                                                <div class="badge badge-opacity-warning">Pending</div>
+                                                            {% endif %}
+                                                        </td>
+                                                        <td>
+                                                            {% if not penalty.served %}
+                                                                <form method="POST" action="{% url 'penalties' %}" class="d-inline">
+                                                                    {% csrf_token %}
+                                                                    <input type="hidden" name="penalty_id" value="{{ penalty.id }}">
+                                                                    <button type="submit" class="btn btn-success btn-sm">
+                                                                        <i class="mdi mdi-check"></i> Mark Served
+                                                                    </button>
+                                                                </form>
+                                                            {% endif %}
+                                                        </td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                {% else %}
+                                                    <tr>
+                                                        <td colspan="5" class="text-center py-4">
+                                                            <i class="mdi mdi-check-circle text-success fa-2x"></i>
+                                                            <p class="mt-2">No penalties! Great job staying consistent! 🎉</p>
+                                                        </td>
+                                                    </tr>
+                                                {% endif %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+<script>
+// Daily Progress Chart - Bar chart showing completed vs total
+const dailyCtx = document.getElementById('dailyProgressChart').getContext('2d');
+new Chart(dailyCtx, {
+    type: 'bar',
+    data: {
+        labels: {{ chart_labels|safe }},
+        datasets: [
+            {
+                label: 'Completed Tasks',
+                data: {{ chart_completed|safe }},
+                backgroundColor: '#2dce89',
+                borderColor: '#2dce89',
+                borderWidth: 1,
+                borderRadius: 8,
+                barPercentage: 0.6,
+                categoryPercentage: 0.8
+            },
+            {
+                label: 'Total Tasks',
+                data: {{ chart_total|safe }},
+                backgroundColor: '#5e72e4',
+                borderColor: '#5e72e4',
+                borderWidth: 1,
+                borderRadius: 8,
+                barPercentage: 0.6,
+                categoryPercentage: 0.8
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+            legend: {
+                position: 'top',
+                labels: {
+                    usePointStyle: true,
+                    boxWidth: 10
+                }
+            },
+            tooltip: {
+                mode: 'index',
+                intersect: false,
+                callbacks: {
+                    label: function(context) {
+                        let label = context.dataset.label || '';
+                        let value = context.parsed.y;
+                        let total = context.dataset.label === 'Completed Tasks' ? 
+                            {{ chart_total|safe }}[context.dataIndex] : value;
+                        if (context.dataset.label === 'Completed Tasks') {
+                            let percentage = (value / total * 100).toFixed(1);
+                            return `${label}: ${value} / ${total} (${percentage}%)`;
+                        }
+                        return `${label}: ${value}`;
+                    }
+                }
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                grid: {
+                    color: 'rgba(0, 0, 0, 0.05)'
+                },
+                title: {
+                    display: true,
+                    text: 'Number of Tasks',
+                    font: {
+                        size: 12
+                    }
+                },
+                ticks: {
+                    stepSize: 1
+                }
+            },
+            x: {
+                grid: {
+                    display: false
+                },
+                title: {
+                    display: true,
+                    text: 'Date',
+                    font: {
+                        size: 12
+                    }
+                }
+            }
+        }
+    }
+});
+
+// Monthly Trend Chart (for the Analytics tab)
+const monthlyTrendCtx = document.getElementById('monthlyTrendChart').getContext('2d');
+new Chart(monthlyTrendCtx, {
+    type: 'line',
+    data: {
+        labels: {{ months|safe }},
+        datasets: [{
+            label: 'Monthly Completion Rate (%)',
+            data: {{ monthly_completion|safe }},
+            borderColor: '#5e72e4',
+            backgroundColor: 'rgba(94, 114, 228, 0.1)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4,
+            pointBackgroundColor: '#5e72e4',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointRadius: 5,
+            pointHoverRadius: 7
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+            legend: {
+                position: 'top',
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        return context.parsed.y.toFixed(1) + '%';
+                    }
+                }
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 100,
+                grid: {
+                    color: 'rgba(0, 0, 0, 0.05)'
+                },
+                title: {
+                    display: true,
+                    text: 'Completion Rate (%)'
+                }
+            },
+            x: {
+                grid: {
+                    display: false
+                },
+                title: {
+                    display: true,
+                    text: 'Month'
+                }
+            }
+        }
+    }
+});
+
+// Radar Chart
+fetch('/chart-data/')
+    .then(response => response.json())
+    .then(data => {
+        const radarCtx = document.getElementById('radarChart').getContext('2d');
+        new Chart(radarCtx, {
+            type: 'radar',
+            data: {
+                labels: data.categories,
+                datasets: [
+                    {
+                        label: 'Target Value',
+                        data: data.targets,
+                        borderColor: '#5e72e4',
+                        backgroundColor: 'rgba(94, 114, 228, 0.2)',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#5e72e4',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4
+                    },
+                    {
+                        label: 'Actual Average',
+                        data: data.actuals,
+                        borderColor: '#2dce89',
+                        backgroundColor: 'rgba(45, 206, 137, 0.2)',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#2dce89',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    }
+                },
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        }
+                    }
+                }
+            }
+        });
+    });
+
+// Doughnut Chart for Category Distribution
+fetch('/chart-data/')
+    .then(response => response.json())
+    .then(data => {
+        const doughnutCtx = document.getElementById('doughnutChart').getContext('2d');
+        new Chart(doughnutCtx, {
+            type: 'doughnut',
+            data: {
+                labels: data.categories,
+                datasets: [{
+                    data: data.targets,
+                    backgroundColor: ['#5e72e4', '#2dce89', '#11cdef', '#fb6340', '#f5365c', '#825ee4'],
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            boxWidth: 12,
+                            padding: 15
+                        }
+                    }
+                },
+                cutout: '60%'
+            }
+        });
+    });
+
+// Penalty Frequency Chart
+{% if penalty_frequency_data %}
+const penaltyCtx = document.getElementById('penaltyChart').getContext('2d');
+new Chart(penaltyCtx, {
+    type: 'bar',
+    data: {
+        labels: {{ penalty_categories|safe }},
+        datasets: [{
+            label: 'Penalty Count',
+            data: {{ penalty_frequency_data|safe }},
+            backgroundColor: '#fb6340',
+            borderRadius: 8,
+            barPercentage: 0.6
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                grid: {
+                    color: 'rgba(0, 0, 0, 0.05)'
+                },
+                title: {
+                    display: true,
+                    text: 'Number of Penalties'
+                }
+            },
+            x: {
+                grid: {
+                    display: false
+                },
+                title: {
+                    display: true,
+                    text: 'Category'
+                }
+            }
+        }
+    }
+});
+{% endif %}
+
+// Heatmap using ApexCharts
+{% if heatmap_data %}
+var heatmapOptions = {
+    series: [{
+        name: 'Completion',
+        data: {{ heatmap_data|safe }}
+    }],
+    chart: {
+        type: 'heatmap',
+        height: 400,
+        toolbar: { show: false }
+    },
+    colors: ['#5e72e4'],
+    xaxis: {
+        type: 'category',
+        categories: {{ heatmap_dates|safe }}
+    },
+    title: {
+        text: 'Daily Performance Heatmap',
+        align: 'center',
+        style: { fontSize: '14px' }
+    },
+    plotOptions: {
+        heatmap: {
+            shadeIntensity: 0.5,
+            radius: 10,
+            useFillColorAsStroke: true,
+            colorScale: {
+                ranges: [{
+                    from: 0,
+                    to: 30,
+                    name: 'Low',
+                    color: '#fb6340'
+                }, {
+                    from: 31,
+                    to: 70,
+                    name: 'Medium',
+                    color: '#ffd600'
+                }, {
+                    from: 71,
+                    to: 100,
+                    name: 'High',
+                    color: '#2dce89'
+                }]
+            }
+        }
+    }
+};
+var heatmapChart = new ApexCharts(document.querySelector("#heatmap"), heatmapOptions);
+heatmapChart.render();
+{% endif %}
+
+// Auto-refresh data every 5 minutes
+setInterval(() => {
+    location.reload();
+}, 300000);
+
+// Mark task as done from dashboard - Updated for table row
+$('.mark-done-btn').on('click', function() {
+    const logId = $(this).data('log-id');
+    const categoryId = $(this).data('category-id');
+    const $row = $(this).closest('tr');
+    const $button = $(this);
+    
+    // Show loading state
+    const originalText = $button.html();
+    $button.html('<i class="mdi mdi-loading mdi-spin"></i> Loading...');
+    $button.prop('disabled', true);
+    
+    // Mark as completed via AJAX
+    $.ajax({
+        url: `/tracker/update/${logId}/`,
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+        },
+        data: JSON.stringify({completed: true}),
+        success: function(response) {
+            if (response.success) {
+                showNotification('✅ Task completed! Great job!', 'success');
+                // Add completion animation
+                $row.css('background', 'rgba(45, 206, 137, 0.1)');
+                setTimeout(function() {
+                    $row.fadeOut(300, function() {
+                        $(this).remove();
+                        // Reload to update counts
+                        location.reload();
+                    });
+                }, 500);
+            } else {
+                showNotification('Error completing task', 'error');
+                $button.html(originalText);
+                $button.prop('disabled', false);
+            }
+        },
+        error: function() {
+            showNotification('Error completing task', 'error');
+            $button.html(originalText);
+            $button.prop('disabled', false);
+        }
+    });
+});
+
+// Show notification function
+function showNotification(message, type = 'info') {
+    const icons = {
+        success: 'mdi-check-circle',
+        error: 'mdi-alert-circle',
+        warning: 'mdi-alert',
+        info: 'mdi-information'
+    };
+    
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed top-0 end-0 m-3`;
+    alertDiv.style.zIndex = '9999';
+    alertDiv.style.minWidth = '350px';
+    alertDiv.style.animation = 'slideInRight 0.5s ease-out';
+    alertDiv.innerHTML = `
+        <i class="mdi ${icons[type]} me-2"></i>
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    document.body.appendChild(alertDiv);
+    
+    setTimeout(() => {
+        alertDiv.style.animation = 'slideOutRight 0.5s ease-out';
+        setTimeout(() => alertDiv.remove(), 500);
+    }, 4000);
+}
+
+// Add animation styles
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    @keyframes slideOutRight {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+    }
+`;
+document.head.appendChild(style);
+
+</script>
+{% endblock %}
+{% endblock %}

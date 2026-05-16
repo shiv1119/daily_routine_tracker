@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Daily Routine Tracker - {% block title %}Dashboard{% endblock %}</title>
+    
+    {% load static %}
+    <!-- plugins:css -->
+    <link rel="stylesheet" href="{% static 'assets/vendors/feather/feather.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/vendors/mdi/css/materialdesignicons.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/vendors/ti-icons/css/themify-icons.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/vendors/font-awesome/css/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/vendors/typicons/typicons.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/vendors/simple-line-icons/css/simple-line-icons.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/vendors/css/vendor.bundle.base.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/vendors/bootstrap-datepicker/bootstrap-datepicker.min.css' %}">
+    <!-- endinject -->
+    <!-- Plugin css for this page -->
+    <link rel="stylesheet" href="{% static 'assets/vendors/datatables.net-bs4/dataTables.bootstrap4.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'assets/js/select.dataTables.min.css' %}">
+    <!-- End plugin css for this page -->
+    <!-- inject:css -->
+    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+    <!-- endinject -->
+    
+    <!-- Custom CSS for Daily Routine Tracker -->
+    <link rel="stylesheet" href="{% static 'css/custom.css' %}">
+    
+    <link rel="shortcut icon" href="{% static 'assets/images/favicon.png' %}" />
+</head>
+<body class="with-welcome-body">
+    <div class="container-scroller">
+        {% if user.is_authenticated %}
+        <!-- Pro Banner - Same as original structure -->
+        <div class="row p-0 m-0 proBanner" id="proBanner">
+            <div class="col-md-12 p-0 m-0">
+                <div class="card-body card-body-padding px-3 d-flex align-items-center justify-content-between">
+                    <div class="ps-lg-3">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <p class="mb-0 fw-medium me-3 buy-now-text">Track your habits, level up your life with Daily Routine Tracker!</p>
+                            <a href="#" class="btn me-2 buy-now-btn border-0">View Documentation</a>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center justify-content-between">
+                        <a href="{% url 'dashboard' %}"><i class="ti-home me-3 text-white"></i></a>
+                        <button id="bannerClose" class="btn border-0 p-0">
+                            <i class="ti-close text-white"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- NAVBAR - Exact same structure as Star Admin2 -->
+        <nav class="navbar default-layout col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
+            <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-start">
+                <div class="me-3">
+                    <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-bs-toggle="minimize">
+                        <span class="icon-menu"></span>
+                    </button>
+                </div>
+                <div>
+                    <a class="navbar-brand brand-logo" href="{% url 'dashboard' %}">
+                        <i class="mdi mdi-checkbox-marked-circle-outline" style="font-size: 1.8rem; color: #5e72e4;"></i>
+                        <span style="font-weight: 700; color: #5e72e4;">Routine</span>
+                        <span style="font-weight: 600; color: #2dce89;">Tracker</span>
+                    </a>
+                    <a class="navbar-brand brand-logo-mini" href="{% url 'dashboard' %}">
+                        <i class="mdi mdi-checkbox-marked-circle-outline" style="font-size: 1.5rem; color: #5e72e4;"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="navbar-menu-wrapper d-flex align-items-top">
+                <ul class="navbar-nav">
+                    <li class="nav-item fw-semibold d-none d-lg-block ms-0">
+                        <h1 class="welcome-text" id="greetingText">Good Morning, <span class="text-black fw-bold">{{ user.username }}</span></h1>
+                        <h3 class="welcome-sub-text">Your performance summary this week</h3>
+                    </li>
+                </ul>
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item dropdown d-none d-lg-block">
+                        <a class="nav-link dropdown-bordered dropdown-toggle dropdown-toggle-split" id="messageDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false"> Quick Actions </a>
+                        <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list pb-0" aria-labelledby="messageDropdown">
+                            <a class="dropdown-item py-3">
+                                <p class="mb-0 fw-medium float-start">Select an action</p>
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item preview-item" href="{% url 'tracker' %}">
+                                <div class="preview-item-content flex-grow py-2">
+                                    <p class="preview-subject ellipsis fw-medium text-dark">Daily Tracker</p>
+                                    <p class="fw-light small-text mb-0">Log your daily activities</p>
+                                </div>
+                            </a>
+                            <a class="dropdown-item preview-item" href="{% url 'categories' %}">
+                                <div class="preview-item-content flex-grow py-2">
+                                    <p class="preview-subject ellipsis fw-medium text-dark">Manage Categories</p>
+                                    <p class="fw-light small-text mb-0">Create or edit habit categories</p>
+                                </div>
+                            </a>
+                            <a class="dropdown-item preview-item" href="{% url 'penalties' %}">
+                                <div class="preview-item-content flex-grow py-2">
+                                    <p class="preview-subject ellipsis fw-medium text-dark">View Penalties</p>
+                                    <p class="fw-light small-text mb-0">Check pending penalties</p>
+                                </div>
+                            </a>
+                        </div>
+                    </li>
+                    <li class="nav-item d-none d-lg-block">
+                        <div id="datepicker-popup" class="input-group date datepicker navbar-date-picker">
+                            <span class="input-group-addon input-group-prepend border-right">
+                                <span class="icon-calendar input-group-text calendar-icon"></span>
+                            </span>
+                            <input type="text" class="form-control" id="currentDate" readonly>
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <form class="search-form" action="{% url 'dashboard' %}" method="GET">
+                            <i class="icon-search"></i>
+                            <input type="search" class="form-control" placeholder="Search Here" title="Search here" name="q">
+                        </form>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link count-indicator" id="notificationDropdown" href="#" data-bs-toggle="dropdown">
+                            <i class="icon-bell"></i>
+                            <span class="count" id="notificationCount">{{ pending_penalties_count|default:0 }}</span>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list pb-0" aria-labelledby="notificationDropdown">
+                            <a class="dropdown-item py-3 border-bottom">
+                                <p class="mb-0 fw-medium float-start">You have <span id="pendingCount">{{ pending_penalties_count|default:0 }}</span> new notifications</p>
+                                <span class="badge badge-pill badge-primary float-end">View all</span>
+                            </a>
+                            <div id="notificationList"></div>
+                        </div>
+                    </li>
+                    <li class="nav-item dropdown d-none d-lg-block user-dropdown">
+                        <a class="nav-link" id="UserDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
+                            {% if user.profile.profile_image %}
+                                <img class="img-xs rounded-circle" src="{{ user.profile.profile_image.url }}" alt="Profile image">
+                            {% else %}
+                                <img class="img-xs rounded-circle" src="https://ui-avatars.com/api/?background=5e72e4&color=fff&name={{ user.username }}&size=35" alt="Profile image">
+                            {% endif %}
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="UserDropdown">
+                            <div class="dropdown-header text-center">
+                                {% if user.profile.profile_image %}
+                                    <img class="img-md rounded-circle" src="{{ user.profile.profile_image.url }}" alt="Profile image">
+                                {% else %}
+                                    <img class="img-md rounded-circle" src="https://ui-avatars.com/api/?background=5e72e4&color=fff&name={{ user.username }}&size=60" alt="Profile image">
+                                {% endif %}
+                                <p class="mb-1 mt-3 fw-semibold">{{ user.username }}</p>
+                                <p class="fw-light text-muted mb-0">{{ user.email }}</p>
+                                <div class="mt-2">
+                                    <span class="badge badge-primary" style="background: {{ user_rank_color|default:'#5e72e4' }};">{{ user_rank|default:'E-Rank' }}</span>
+                                </div>
+                            </div>
+                            <a class="dropdown-item" href="{% url 'profile' %}">
+                                <i class="dropdown-item-icon mdi mdi-account-outline text-primary me-2"></i> My Profile
+                            </a>
+                            <a class="dropdown-item" href="{% url 'dashboard' %}">
+                                <i class="dropdown-item-icon mdi mdi-view-dashboard-outline text-primary me-2"></i> Dashboard
+                            </a>
+                            <a class="dropdown-item" href="{% url 'tracker' %}">
+                                <i class="dropdown-item-icon mdi mdi-calendar-check-outline text-primary me-2"></i> Daily Tracker
+                            </a>
+                            <a class="dropdown-item" href="{% url 'categories' %}">
+                                <i class="dropdown-item-icon mdi mdi-tag-multiple text-primary me-2"></i> Categories
+                            </a>
+                            <a class="dropdown-item" href="{% url 'penalties' %}">
+                                <i class="dropdown-item-icon mdi mdi-alert-circle-outline text-primary me-2"></i> Penalties
+                            </a>
+                            <a class="dropdown-item" href="#" id="darkModeToggleHeader">
+                                <i class="dropdown-item-icon mdi mdi-theme-light-dark text-primary me-2"></i> Dark/Light Mode
+                            </a>
+                            <a class="dropdown-item" href="{% url 'logout' %}">
+                                <i class="dropdown-item-icon mdi mdi-power text-primary me-2"></i> Sign Out
+                            </a>
+                        </div>
+                    </li>
+                </ul>
+                <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button" data-bs-toggle="offcanvas">
+                    <span class="mdi mdi-menu"></span>
+                </button>
+            </div>
+        </nav>
+        
+        <!-- SIDEBAR - Exact same structure as Star Admin2 -->
+        <div class="container-fluid page-body-wrapper">
+            <nav class="sidebar sidebar-offcanvas" id="sidebar">
+                <ul class="nav">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}">
+                            <i class="mdi mdi-grid-large menu-icon"></i>
+                            <span class="menu-title">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item nav-category">Daily Tracking</li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'tracker' %}active{% endif %}" href="{% url 'tracker' %}">
+                            <i class="mdi mdi-calendar-check menu-icon"></i>
+                            <span class="menu-title">Daily Tracker</span>
+                        </a>
+                    </li>
+                    <li class="nav-item nav-category">Management</li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'categories' %}active{% endif %}" href="{% url 'categories' %}">
+                            <i class="mdi mdi-tag-multiple menu-icon"></i>
+                            <span class="menu-title">Categories</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'penalties' %}active{% endif %}" href="{% url 'penalties' %}">
+                            <i class="mdi mdi-alert-circle menu-icon"></i>
+                            <span class="menu-title">Penalties</span>
+                            {% if pending_penalties_count > 0 %}
+                                <span class="badge badge-danger ms-2">{{ pending_penalties_count }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    <li class="nav-item nav-category">Account</li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}" href="{% url 'profile' %}">
+                            <i class="mdi mdi-account-circle menu-icon"></i>
+                            <span class="menu-title">Profile</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'logout' %}">
+                            <i class="mdi mdi-logout menu-icon"></i>
+                            <span class="menu-title">Logout</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            
+            <!-- MAIN PANEL -->
+            <div class="main-panel">
+                <div class="content-wrapper">
+                    <!-- Messages -->
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                <i class="mdi {% if message.tags == 'success' %}mdi-check-circle{% elif message.tags == 'error' %}mdi-alert-circle{% else %}mdi-information{% endif %} me-2"></i>
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    
+                    {% block content %}{% endblock %}
+                </div>
+                <!-- content-wrapper ends -->
+                
+                <!-- FOOTER - Same structure -->
+                <footer class="footer">
+                    <div class="d-sm-flex justify-content-center justify-content-sm-between">
+                        <span class="text-muted text-center text-sm-left d-block d-sm-inline-block">
+                            Premium <a href="https://www.bootstrapdash.com/" target="_blank">Bootstrap admin template</a> from BootstrapDash.
+                        </span>
+                        <span class="float-none float-sm-end d-block mt-1 mt-sm-0 text-center">
+                            Copyright © {% now "Y" %} Daily Routine Tracker. All rights reserved.
+                        </span>
+                    </div>
+                </footer>
+                <!-- partial -->
+            </div>
+            <!-- main-panel ends -->
+        </div>
+        <!-- page-body-wrapper ends -->
+        {% else %}
+            <div class="container-fluid">
+                {% block auth_content %}{% endblock %}
+            </div>
+        {% endif %}
+    </div>
+    <!-- container-scroller -->
+    
+    <!-- Scripts -->
+    <script src="{% static 'assets/vendors/js/vendor.bundle.base.js' %}"></script>
+    <script src="{% static 'assets/vendors/bootstrap-datepicker/bootstrap-datepicker.min.js' %}"></script>
+    <!-- endinject -->
+    <!-- Plugin js for this page -->
+    <script src="{% static 'assets/vendors/chart.js/chart.umd.js' %}"></script>
+    <script src="{% static 'assets/vendors/progressbar.js/progressbar.min.js' %}"></script>
+    <!-- End plugin js for this page -->
+    <!-- inject:js -->
+    <script src="{% static 'assets/js/off-canvas.js' %}"></script>
+    <script src="{% static 'assets/js/template.js' %}"></script>
+    <script src="{% static 'assets/js/settings.js' %}"></script>
+    <script src="{% static 'assets/js/hoverable-collapse.js' %}"></script>
+    <script src="{% static 'assets/js/todolist.js' %}"></script>
+    <!-- endinject -->
+    <!-- Custom js for this page-->
+    <script src="{% static 'assets/js/jquery.cookie.js' %}"></script>
+    <script src="{% static 'assets/js/dashboard.js' %}"></script>
+    <script src="{% static 'js/main.js' %}"></script>
+    
+    <script>
+        // Set current date
+        const today = new Date();
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        const dateInput = document.getElementById('currentDate');
+        if (dateInput) {
+            dateInput.value = today.toLocaleDateString('en-US', options);
+        }
+        
+        // Close banner
+        const bannerCloseBtn = document.getElementById('bannerClose');
+        if (bannerCloseBtn) {
+            bannerCloseBtn.addEventListener('click', function() {
+                const banner = document.getElementById('proBanner');
+                if (banner) banner.style.display = 'none';
+            });
+        }
+        
+        // Dynamic greeting based on time of day
+        const hour = new Date().getHours();
+        let greeting = 'Good Morning';
+        if (hour >= 12 && hour < 17) greeting = 'Good Afternoon';
+        else if (hour >= 17) greeting = 'Good Evening';
+        
+        const greetingText = document.getElementById('greetingText');
+        if (greetingText) {
+            greetingText.innerHTML = `${greeting}, <span class="text-black fw-bold">{{ user.username }}</span>`;
+        }
+        
+        // Mobile sidebar toggle - using the same off-canvas mechanism
+        const navbarTogglerRight = document.querySelector('.navbar-toggler-right');
+        const sidebar = document.getElementById('sidebar');
+        
+        if (navbarTogglerRight && sidebar) {
+            navbarTogglerRight.addEventListener('click', function() {
+                sidebar.classList.toggle('active');
+                document.body.classList.toggle('sidebar-open');
+            });
+        }
+        
+        // Dark mode toggle
+        document.getElementById('darkModeToggleHeader')?.addEventListener('click', function(e) {
+            e.preventDefault();
+            fetch('{% url "toggle_dark_mode" %}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                location.reload();
+            });
+        });
+        
+        // Load notifications
+        function loadNotifications() {
+            fetch('{% url "get_notifications" %}')
+                .then(response => response.json())
+                .then(data => {
+                    const notificationList = document.getElementById('notificationList');
+                    const notificationCount = document.getElementById('notificationCount');
+                    const pendingCount = document.getElementById('pendingCount');
+                    
+                    if (notificationList && data.notifications) {
+                        if (data.notifications.length === 0) {
+                            notificationList.innerHTML = `
+                                <a class="dropdown-item preview-item py-3">
+                                    <div class="preview-item-content">
+                                        <p class="fw-light small-text mb-0 text-center">No new notifications</p>
+                                    </div>
+                                </a>
+                            `;
+                        } else {
+                            notificationList.innerHTML = data.notifications.map(notif => `
+                                <a class="dropdown-item preview-item py-3" href="${notif.link || '#'}">
+                                    <div class="preview-thumbnail">
+                                        <i class="mdi ${notif.icon || 'mdi-alert'} m-auto text-primary"></i>
+                                    </div>
+                                    <div class="preview-item-content">
+                                        <h6 class="preview-subject fw-normal text-dark mb-1">${notif.title}</h6>
+                                        <p class="fw-light small-text mb-0">${notif.time}</p>
+                                    </div>
+                                </a>
+                            `).join('');
+                        }
+                        
+                        if (notificationCount) notificationCount.textContent = data.notifications.length;
+                        if (pendingCount) pendingCount.textContent = data.notifications.length;
+                    }
+                });
+        }
+        
+        {% if user.is_authenticated %}
+        loadNotifications();
+        setInterval(loadNotifications, 30000);
+        {% endif %}
+        
+        // Initialize datepicker
+        if ($('#datepicker-popup').length) {
+            $('#datepicker-popup').datepicker({
+                format: 'MMMM dd, yyyy',
+                todayHighlight: true,
+                autoclose: true
+            });
+        }
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

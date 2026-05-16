@@ -1,0 +1,484 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Categories{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-sm-12">
+        <div class="home-tab">
+            <!-- Header -->
+            <div class="d-sm-flex align-items-center justify-content-between border-bottom">
+                <div>
+                    <h2 class="mb-1">Manage Categories</h2>
+                    <p class="text-muted mb-0">Create and manage your habit categories with penalties</p>
+                </div>
+                <div>
+                    <div class="btn-wrapper">
+                        <a href="{% url 'tracker' %}" class="btn btn-outline-primary">
+                            <i class="mdi mdi-calendar-check"></i> Go to Tracker
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mt-4">
+                <!-- Add Category Form -->
+                <div class="col-lg-4 grid-margin stretch-card">
+                    <div class="card card-rounded">
+                        <div class="card-header bg-transparent">
+                            <h4 class="card-title mb-0">
+                                <i class="mdi mdi-plus-circle-outline text-primary"></i> Add New Category
+                            </h4>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST">
+                                {% csrf_token %}
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Category Icon</label>
+                                    {{ form.icon }}
+                                    <small class="text-muted">Use emoji like 📚, 💪, 😴</small>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Category Name</label>
+                                    {{ form.name }}
+                                </div>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Target Value</label>
+                                        {{ form.target_value }}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Unit</label>
+                                        {{ form.unit }}
+                                        <small class="text-muted">e.g., hrs, mins, times</small>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Penalty Text</label>
+                                    {{ form.penalty_text }}
+                                    <small class="text-muted">What happens if you miss this target?</small>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary btn-block w-100">
+                                    <i class="mdi mdi-content-save"></i> Create Category
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Categories List -->
+                <div class="col-lg-8 grid-margin stretch-card">
+                    <div class="card card-rounded">
+                        <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+                            <h4 class="card-title mb-0">
+                                <i class="mdi mdi-format-list-bulleted text-primary"></i> Your Categories
+                            </h4>
+                            <span class="badge badge-primary">{{ categories.count }} Total</span>
+                        </div>
+                        <div class="card-body p-0">
+                            {% if categories %}
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Icon</th>
+                                                <th>Category</th>
+                                                <th>Target</th>
+                                                <th>Penalty</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for category in categories %}
+                                            <tr>
+                                                <td style="font-size: 2rem;">{{ category.icon }}</td>
+                                                <td>
+                                                    <h6 class="mb-0 fw-bold">{{ category.name }}</h6>
+                                                    <small class="text-muted">Active</small>
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex flex-column">
+                                                        <span class="fw-semibold">{{ category.target_value }} {{ category.unit }}</span>
+                                                        <small class="text-muted">per day</small>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="badge badge-opacity-warning">
+                                                        <i class="mdi mdi-gavel"></i> {{ category.penalty_text|truncatechars:40 }}
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <a href="{% url 'edit_category' category.id %}" class="btn btn-info btn-sm">
+                                                        <i class="mdi mdi-pencil"></i> Edit
+                                                    </a>
+                                                    <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal{{ category.id }}">
+                                                        <i class="mdi mdi-delete"></i> Delete
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <div class="text-center py-5">
+                                    <i class="mdi mdi-folder-open-outline fa-3x text-muted mb-3 d-block"></i>
+                                    <h5 class="text-muted">No categories yet</h5>
+                                    <p class="text-muted">Create your first category to start tracking your habits!</p>
+                                    <div class="mt-3">
+                                        <i class="mdi mdi-arrow-up text-primary"></i>
+                                        <small class="text-muted">Use the form on the left to add a category</small>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Tips Card -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card card-rounded bg-gradient-info text-white">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <h5 class="text-white mb-2">
+                                        <i class="mdi mdi-lightbulb-outline"></i> Pro Tips
+                                    </h5>
+                                    <p class="mb-0 text-white-50">
+                                        Create categories for habits you want to track daily. Set realistic targets and meaningful penalties to stay motivated!
+                                    </p>
+                                </div>
+                                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                                    <div class="d-flex justify-content-md-end gap-2">
+                                        <div class="text-center">
+                                            <i class="mdi mdi-check-circle-outline fa-2x"></i>
+                                            <small class="d-block">Track Daily</small>
+                                        </div>
+                                        <div class="text-center">
+                                            <i class="mdi mdi-chart-line fa-2x"></i>
+                                            <small class="d-block">See Progress</small>
+                                        </div>
+                                        <div class="text-center">
+                                            <i class="mdi mdi-trophy fa-2x"></i>
+                                            <small class="d-block">Earn Ranks</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Modals -->
+{% for category in categories %}
+<div class="modal fade" id="deleteModal{{ category.id }}" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title">
+                    <i class="mdi mdi-delete-forever text-danger"></i> Delete Category
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-3">
+                    <span style="font-size: 4rem;">{{ category.icon }}</span>
+                </div>
+                <p class="text-center mb-3">
+                    Are you sure you want to delete <strong class="text-danger">"{{ category.name }}"</strong>?
+                </p>
+                <div class="alert alert-warning">
+                    <i class="mdi mdi-alert-circle"></i>
+                    <strong>Warning:</strong> This action cannot be undone!
+                    <ul class="mt-2 mb-0">
+                        <li>All daily logs for this category will be deleted</li>
+                        <li>All associated penalties will be removed</li>
+                        <li>Your consistency score will be recalculated</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="mdi mdi-cancel"></i> Cancel
+                </button>
+                <form method="POST" action="{% url 'delete_category' category.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        <i class="mdi mdi-delete"></i> Yes, Delete Category
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<style>
+    .badge-opacity-warning {
+        background: rgba(251, 99, 64, 0.1);
+        color: #fb6340;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 0.75rem;
+    }
+    
+    .table-hover tbody tr {
+        transition: all 0.3s ease;
+    }
+    
+    .table-hover tbody tr:hover {
+        background: rgba(94, 114, 228, 0.05);
+        transform: translateX(5px);
+    }
+    
+    .bg-gradient-info {
+        background: linear-gradient(87deg, #11cdef 0%, #1171ef 100%);
+    }
+    
+    /* ===== FIXED BUTTON STYLES - FORCE WHITE TEXT ===== */
+    .btn-primary,
+    .btn-info,
+    .btn-danger,
+    .btn-success,
+    .btn-warning {
+        color: #ffffff !important;
+        background: linear-gradient(87deg, #5e72e4 0%, #825ee4 100%);
+        border: none;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-info {
+        background: linear-gradient(87deg, #11cdef 0%, #1171ef 100%);
+    }
+    
+    .btn-danger {
+        background: linear-gradient(87deg, #f5365c 0%, #f56036 100%);
+    }
+    
+    .btn-success {
+        background: linear-gradient(87deg, #2dce89 0%, #2dcecc 100%);
+    }
+    
+    /* Hover states - keep white text */
+    .btn-primary:hover,
+    .btn-info:hover,
+    .btn-danger:hover,
+    .btn-success:hover,
+    .btn-warning:hover {
+        color: #ffffff !important;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11);
+        opacity: 0.9;
+    }
+    
+    /* Active and focus states - keep white text */
+    .btn-primary:active,
+    .btn-info:active,
+    .btn-danger:active,
+    .btn-success:active,
+    .btn-warning:active,
+    .btn-primary:focus,
+    .btn-info:focus,
+    .btn-danger:focus,
+    .btn-success:focus,
+    .btn-warning:focus {
+        color: #ffffff !important;
+        transform: translateY(0);
+        box-shadow: none;
+    }
+    
+    /* Disabled state */
+    .btn-primary:disabled,
+    .btn-info:disabled,
+    .btn-danger:disabled,
+    .btn-success:disabled {
+        color: #ffffff !important;
+        opacity: 0.65;
+    }
+    
+    /* Secondary button */
+    .btn-secondary {
+        background: #e9ecef;
+        border: none;
+        color: #525f7f !important;
+    }
+    
+    .btn-secondary:hover {
+        background: #dee2e6;
+        color: #525f7f !important;
+        transform: translateY(-1px);
+    }
+    
+    /* Outline button */
+    .btn-outline-primary {
+        color: #5e72e4 !important;
+        border-color: #5e72e4;
+        background: transparent;
+    }
+    
+    .btn-outline-primary:hover {
+        background: #5e72e4;
+        color: #ffffff !important;
+    }
+    
+    /* Button sizes */
+    .btn-sm {
+        padding: 0.4rem 0.75rem;
+        font-size: 0.75rem;
+    }
+    
+    .btn-block {
+        display: block;
+        width: 100%;
+    }
+    
+    /* Button icons */
+    .btn i {
+        margin-right: 5px;
+        vertical-align: middle;
+    }
+    
+    /* Form controls */
+    .form-control, .form-select {
+        border-radius: 0.5rem;
+        border: 1px solid #dee2e6;
+        padding: 0.625rem 0.75rem;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #5e72e4;
+        box-shadow: 0 0 0 2px rgba(94, 114, 228, 0.2);
+    }
+    
+    label {
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        color: #525f7f;
+    }
+    
+    /* Modal styles */
+    .modal-content {
+        border-radius: 1rem;
+        border: none;
+    }
+    
+    .modal-header {
+        padding: 1.5rem 1.5rem 0 1.5rem;
+    }
+    
+    .modal-body {
+        padding: 1.5rem;
+    }
+    
+    .modal-footer {
+        padding: 0 1.5rem 1.5rem 1.5rem;
+    }
+    
+    /* Dark mode support */
+    [data-bs-theme="dark"] .btn-secondary {
+        background: #2d3748;
+        color: #e2e8f0 !important;
+    }
+    
+    [data-bs-theme="dark"] .btn-secondary:hover {
+        background: #374151;
+    }
+    
+    [data-bs-theme="dark"] .btn-outline-primary {
+        color: #5e72e4 !important;
+    }
+    
+    [data-bs-theme="dark"] .btn-outline-primary:hover {
+        color: #ffffff !important;
+    }
+    
+    /* Ensure any button with these classes has white text */
+    button[class*="btn-primary"],
+    button[class*="btn-info"],
+    button[class*="btn-danger"],
+    a[class*="btn-primary"],
+    a[class*="btn-info"],
+    a[class*="btn-danger"] {
+        color: #ffffff !important;
+    }
+</style>
+
+{% block extra_js %}
+<script>
+// Show success message after form submission
+{% if messages %}
+    {% for message in messages %}
+        showNotification('{{ message }}', '{{ message.tags }}');
+    {% endfor %}
+{% endif %}
+
+function showNotification(message, type = 'success') {
+    const icons = {
+        success: 'mdi-check-circle',
+        error: 'mdi-alert-circle',
+        warning: 'mdi-alert',
+        info: 'mdi-information'
+    };
+    
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed top-0 end-0 m-3`;
+    alertDiv.style.zIndex = '9999';
+    alertDiv.style.minWidth = '350px';
+    alertDiv.style.animation = 'slideInRight 0.5s ease-out';
+    alertDiv.innerHTML = `
+        <i class="mdi ${icons[type] || icons.info} me-2"></i>
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    document.body.appendChild(alertDiv);
+    
+    setTimeout(() => {
+        alertDiv.style.animation = 'slideOutRight 0.5s ease-out';
+        setTimeout(() => alertDiv.remove(), 500);
+    }, 4000);
+}
+
+// Add animation styles if not already present
+if (!document.querySelector('#categoryStyles')) {
+    const style = document.createElement('style');
+    style.id = 'categoryStyles';
+    style.textContent = `
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+}
+</script>
+{% endblock %}
+{% endblock %}

@@ -1,0 +1,81 @@
+{% load static %}
+<nav class="col-md-3 col-lg-2 d-md-block sidebar collapse" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    <div class="position-sticky pt-3">
+        <div class="text-center mb-4">
+            {% if user.profile.profile_image %}
+                <img src="{{ user.profile.profile_image.url }}" alt="Profile" class="rounded-circle mb-2" width="80" height="80" style="object-fit: cover; border: 3px solid white;">
+            {% else %}
+                <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center mb-2" style="width: 80px; height: 80px;">
+                    <i class="fas fa-user fa-3x text-secondary"></i>
+                </div>
+            {% endif %}
+            <h5 class="text-white mb-1">{{ user.username }}</h5>
+            <div class="badge" style="background-color: {{ user_rank_color }}; font-size: 1rem;">
+                <i class="fas {{ user_rank_icon }}"></i> {{ user_rank }}
+            </div>
+            <div class="mt-2">
+                <small class="text-white-50">Consistency: {{ consistency_score|floatformat:1 }}%</small>
+                <div class="progress mt-1" style="height: 5px;">
+                    <div class="progress-bar" style="width: {{ consistency_score }}%; background-color: {{ user_rank_color }};"></div>
+                </div>
+            </div>
+        </div>
+        
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link text-white {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}">
+                    <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white {% if request.resolver_match.url_name == 'tracker' %}active{% endif %}" href="{% url 'tracker' %}">
+                    <i class="fas fa-calendar-check me-2"></i> Daily Tracker
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white {% if request.resolver_match.url_name == 'categories' %}active{% endif %}" href="{% url 'categories' %}">
+                    <i class="fas fa-tags me-2"></i> Categories
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white {% if request.resolver_match.url_name == 'penalties' %}active{% endif %}" href="{% url 'penalties' %}">
+                    <i class="fas fa-exclamation-triangle me-2"></i> Penalties
+                    {% if pending_penalties_count > 0 %}
+                        <span class="badge bg-danger rounded-pill ms-2">{{ pending_penalties_count }}</span>
+                    {% endif %}
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white {% if request.resolver_match.url_name == 'profile' %}active{% endif %}" href="{% url 'profile' %}">
+                    <i class="fas fa-user-circle me-2"></i> Profile
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white" href="{% url 'logout' %}">
+                    <i class="fas fa-sign-out-alt me-2"></i> Logout
+                </a>
+            </li>
+        </ul>
+        
+        <div class="mt-4 text-center">
+            <button id="darkModeToggle" class="btn btn-light btn-sm">
+                <i class="fas fa-moon"></i> <span id="modeText">Dark Mode</span>
+            </button>
+        </div>
+    </div>
+</nav>
+
+<script>
+document.getElementById('darkModeToggle').addEventListener('click', function() {
+    fetch('{% url "toggle_dark_mode" %}', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        location.reload();
+    });
+});
+</script>
